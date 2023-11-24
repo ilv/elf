@@ -160,7 +160,7 @@ sub parse_ehdr {
 # see https://refspecs.linuxbase.org/elf/gabi4+/ch4.sheader.html
 sub parse_shtab {
     print "[+] Parsing section header table ($ehdr{'e_shnum'} entries)\n";
-    seek $efh, $ehdr{'e_shoff'}, "SEEK_SET"; 
+    seek $efh, $ehdr{'e_shoff'}, 0; 
     for (my $i = 0; $i < $ehdr{'e_shnum'}; $i++) {
         my %sh;
         my @hdr = ru($efh, "I I q q q q I I q q", $ehdr{'e_shentsize'});
@@ -171,9 +171,9 @@ sub parse_shtab {
         if($sh{'sh_type'} == 3) {
             my $tmpstr;
             my $curr_offset = tell $efh;
-            seek $efh, $sh{'sh_offset'}, "SEEK_SET";
+            seek $efh, $sh{'sh_offset'}, 0;
             read $efh, $tmpstr, $sh{'sh_size'};
-            seek $efh, $curr_offset, "SEEK_SET";
+            seek $efh, $curr_offset, 0;
             $strtab{$sh{'sh_offset'}} = $tmpstr;
         }
     }
@@ -218,7 +218,7 @@ sub parse_symtab {
 
     print "[+] Parsing symbol table ($num_entry entries)\n";
     my $curr_file_offset = tell $efh;
-    seek $efh, $symtab->{'sh_offset'}, "SEEK_SET";
+    seek $efh, $symtab->{'sh_offset'}, 0;
     for (my $i = 0; $i < $num_entry; $i++) {
         my %sym;
         my @hdr = ru($efh, "I C C S q q", $symtab->{'sh_entsize'});
@@ -250,7 +250,7 @@ sub parse_relocs {
 
     print "[+] Parsing relocations ($entry_num entries)\n";
     my $curr_file_offset = tell $efh;
-    seek $efh, $rt->{'sh_offset'}, "SEEK_SET";
+    seek $efh, $rt->{'sh_offset'}, 0;
     for (my $i = 0; $i < $entry_num; $i++) {
         my %r;
         my @hdr = ru($efh, "q Q i", $rt->{'sh_entsize'});
